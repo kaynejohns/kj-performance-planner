@@ -40,7 +40,7 @@ export async function generateWithModel(prompt, system) {
 
   const isLargeRequest = !system;
   const model = isLargeRequest ? PROGRAM_MODEL() : BLUEPRINT_MODEL();
-  const maxTokens = isLargeRequest ? 32000 : 4000;
+  const maxTokens = isLargeRequest ? 32000 : 3000;
   const params = {
     model,
     max_tokens: maxTokens,

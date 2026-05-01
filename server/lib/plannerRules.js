@@ -253,16 +253,16 @@ ${constraints.map((x) => `- ${x}`).join("\n")}
 NORWEGIAN METHOD FRAMEWORK — follow in all JSON strings (this section is not silent; your wording must comply):
 ${norwegianFramework.map((x) => `- ${x}`).join("\n")}
 
-OUTPUT QUALITY BAR:
-- headline: One punchy sentence naming the real bottleneck. Reference their specific event or gap if possible. Not generic. Obey Norwegian Method language rules (no banned words, no pace).
-- snapshot.mainLimiter: The single most important thing holding this athlete back. Be specific, not categorical.
-- drivers: 2–4 actual physiological or structural reasons they're not progressing. Skip the obvious. Be specific. Where intensity is relevant, reference LT1 (first lactate threshold) for controlled quality work — not LT2.
-- bigRocks: 3–5 strategic priorities in impact order. Each must be actionable and tied to their numbers. Reflect the 80/10/10 distribution unless you explicitly justify a temporary skew.
-- weeklyStructure: Match their ${input.sessionsPerWeek} sessions and ${input.hoursPerWeek}h. If they train 4 days, only schedule 4 days. Rest days are legitimate structure. Session foci must respect ~80% easy (below LT1), ~10% LT1-oriented work, ~10% high intensity — describe each day with feel and duration, never pace.
-- riskFlags: Real risks from their actual profile. Not boilerplate warnings.
-- metrics: Measurable KPIs tied to their event and goal — session completion, consistency, subjective readiness, time-at-intent, breathing markers, or load progression. Do not use pace-based metrics (e.g. avoid "threshold pace" or min/km).
+OUTPUT QUALITY BAR — keep every string as SHORT as the instruction allows:
+- headline: ≤20 words. One punchy sentence naming the real bottleneck. Reference their specific event or gap. Obey Norwegian Method language rules.
+- snapshot.mainLimiter: ≤12 words. The single thing holding them back. Specific, not categorical.
+- drivers: 2–3 items, ≤25 words each. Actual physiological or structural reasons. Reference LT1 for controlled quality work — not LT2.
+- bigRocks: 3–4 items, ≤20 words each. Actionable priorities in impact order. Reflect 80/10/10.
+- weeklyStructure: Match their ${input.sessionsPerWeek} sessions and ${input.hoursPerWeek}h. focus field ≤10 words — session type + feel only, never pace.
+- riskFlags: 2–3 items, ≤20 words each. Real risks from their actual profile.
+- metrics: 3 items, ≤6 words each. Measurable KPIs — session completion, breathing markers, load change. No pace values.
 
-Return ONLY valid JSON in exactly this schema. Arrays may have 2–5 items — use as many as genuinely apply:
+Return ONLY valid JSON in exactly this schema:
 {
   "headline": "string",
   "snapshot": {
@@ -308,20 +308,18 @@ Return ONLY valid JSON in exactly this schema. Arrays may have 2–5 items — u
   }
 }
 
-For gapSummary:
-- currentBenchmark / goalBenchmark: echo back what was provided, or "Not provided". If PRE-COMPUTED PACE FACTS are present, append the correct pace in brackets, e.g. "2:23:00 (3:23/km)"
-- improvementRequired: the delta in plain language (e.g. "15 minutes off marathon time"). Use the pre-computed time gap if provided — do not calculate it yourself.
-- classification: one of "Achievable in one block", "Moderate challenge — 2–3 blocks", "Significant challenge — 4–6 blocks", "Long-term transformation — 6+ blocks"
-- timelineEstimate: honest plain-language estimate (e.g. "12–20 weeks with consistent training")
-- summary: 1–2 sentences on what closing this gap actually requires
-- primaryPriorities: 2–3 the most important things to close the gap
-
-For readout:
-- feasibilityScore: integer 0–100. How feasible the athlete's goal is given their current capacity. 90+ = aligned, 75–89 = achievable, 60–74 = ambitious, 40–59 = significant challenge, <40 = unrealistic without major changes. Be honest — do not inflate.
-- feasibilityLabel: one of "aligned", "achievable", "ambitious", "significant challenge", "unrealistic"
-- capacityMetrics: exactly 4 metrics scored 0–100 relevant to this athlete's sport and goal. Choose the 4 most relevant from: Aerobic Base, Load Tolerance, Consistency, Strength Base, Speed Reserve, Race-Specific Fitness, Threshold Fitness, Recovery Quality, Mental Resilience, Fuelling Readiness. Score each honestly based on their data. delta: the gap to where they need to be for their goal (negative = deficit, 0 = adequate). status: one of "strong", "adequate", "limiting", "critical".
-- phases: 3–5 training phases that map the path from now to the athlete's goal. Each phase has a label (e.g. Base, Build, Specific, Taper, Foundation, Race-Specific), a duration in weeks (e.g. "6 weeks"), and a focus — one short sentence on what this phase develops. Sequence should be logical and sum to roughly the athlete's timeline. If timeline is unknown, use a sensible default (16–20 weeks for most goals).
-- flags: 2–3 short, specific callouts. tag is a 1-word label (e.g. TIME, LOAD, INJURY, VOLUME, INTENSITY). message is one direct sentence about the flag.`;
+Field rules (keep ALL strings tight):
+- gapSummary.currentBenchmark / goalBenchmark: echo back as provided; if PRE-COMPUTED PACE FACTS present, append pace e.g. "2:23:00 (3:23/km)". ≤15 words.
+- gapSummary.improvementRequired: delta in plain language using pre-computed time gap. ≤10 words.
+- gapSummary.classification: one of "Achievable in one block", "Moderate challenge — 2–3 blocks", "Significant challenge — 4–6 blocks", "Long-term transformation — 6+ blocks"
+- gapSummary.timelineEstimate: ≤8 words. E.g. "12–20 weeks with consistent training".
+- gapSummary.summary: ≤30 words. What closing this gap actually requires.
+- gapSummary.primaryPriorities: 2–3 items, ≤12 words each.
+- readout.feasibilityScore: integer 0–100. Honest — do not inflate. 90+=aligned, 75–89=achievable, 60–74=ambitious, 40–59=significant challenge, <40=unrealistic.
+- readout.feasibilityLabel: one of "aligned", "achievable", "ambitious", "significant challenge", "unrealistic"
+- readout.capacityMetrics: exactly 4, scored 0–100. Choose from: Aerobic Base, Load Tolerance, Consistency, Strength Base, Speed Reserve, Race-Specific Fitness, Threshold Fitness, Recovery Quality. delta: gap to goal (negative=deficit). status: "strong"|"adequate"|"limiting"|"critical".
+- readout.phases: 3–4 phases. label ≤2 words, duration e.g. "6 weeks", focus ≤8 words. Sum to athlete's timeline.
+- readout.flags: 2–3 items. tag is 1 word (TIME/LOAD/INJURY/VOLUME/INTENSITY). message ≤20 words.`;
 }
 
 /** Hardcoded conversion CTA (applied after model parse; overrides `cta` in the JSON). */
