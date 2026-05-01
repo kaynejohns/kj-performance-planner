@@ -1,21 +1,25 @@
-// Load .env manually — dotenvx (globally installed) intercepts `dotenv/config`
-// and corrupts the ANTHROPIC_API_KEY value, causing 401s.
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load .env manually in local dev — dotenvx intercepts `dotenv/config` and corrupts keys.
+// On Netlify, env vars are injected directly into process.env — no file reading needed.
+// import.meta.url is undefined when esbuild bundles to CJS, so guard it.
 try {
-  const lines = readFileSync(join(__dirname, ".env"), "utf8").split("\n");
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const eq = trimmed.indexOf("=");
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    const value = trimmed.slice(eq + 1).trim();
-    process.env[key] = value;
+  const metaUrl = import.meta?.url;
+  if (metaUrl) {
+    const { readFileSync } = await import("fs");
+    const { fileURLToPath } = await import("url");
+    const { dirname, join } = await import("path");
+    const __dirname = dirname(fileURLToPath(metaUrl));
+    const lines = readFileSync(join(__dirname, ".env"), "utf8").split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim();
+      process.env[key] = value;
+    }
   }
-} catch { /* no .env file */ }
+} catch { /* no .env file or not in local dev */ }
 import cors from "cors";
 import express from "express";
 import { generatePerformancePlan, generateWithModel } from "./lib/coachPlanGenerationService.js";
