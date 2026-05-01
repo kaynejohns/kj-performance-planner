@@ -7,7 +7,7 @@ function isFirebaseReady() {
 export async function syncLeadToCRM(leadData) {
   if (!isFirebaseReady()) return { ok: true };
   try {
-    await getDb().collection("leads").add({
+    await (await getDb()).collection("leads").add({
       firstName:           leadData.firstName  || null,
       email:               leadData.email      || null,
       sport:               leadData.sport      || null,
