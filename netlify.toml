@@ -4,9 +4,8 @@
   functions = "netlify/functions"
 
 [functions]
-  node_bundler = "esbuild"
-  # firebase-admin and pdfkit can't be bundled by esbuild — keep them as external
-  external_node_modules = ["firebase-admin", "pdfkit", "@google-cloud/firestore", "google-auth-library"]
+  node_bundler = "zisi"
+  included_files = ["server/**"]
   [functions."api"]
     timeout = 26
 
