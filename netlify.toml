@@ -5,6 +5,8 @@
 
 [functions]
   node_bundler = "esbuild"
+  # firebase-admin and pdfkit can't be bundled by esbuild — keep them as external
+  external_node_modules = ["firebase-admin", "pdfkit", "@google-cloud/firestore", "google-auth-library"]
   [functions."api"]
     timeout = 26
 

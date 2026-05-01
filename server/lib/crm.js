@@ -1,6 +1,11 @@
 import { getDb } from "./firebase.js";
 
+function isFirebaseReady() {
+  return !!(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
+}
+
 export async function syncLeadToCRM(leadData) {
+  if (!isFirebaseReady()) return { ok: true };
   try {
     await getDb().collection("leads").add({
       firstName:           leadData.firstName  || null,

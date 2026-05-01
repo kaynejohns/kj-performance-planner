@@ -1,8 +1,18 @@
 import { getDb } from "./firebase.js";
 
+function isFirebaseReady() {
+  try {
+    const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+    return !!(FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY);
+  } catch {
+    return false;
+  }
+}
+
 const submissions = () => getDb().collection("submissions");
 
 export async function createLeadSubmission(data) {
+  if (!isFirebaseReady()) return { id: crypto.randomUUID(), ...data };
   const id = crypto.randomUUID();
   const record = {
     id,
@@ -16,6 +26,7 @@ export async function createLeadSubmission(data) {
 }
 
 export async function saveGeneratedPlan(submissionId, plan) {
+  if (!isFirebaseReady()) return null;
   const ref = submissions().doc(submissionId);
   const snap = await ref.get();
   if (!snap.exists) return null;
@@ -25,11 +36,13 @@ export async function saveGeneratedPlan(submissionId, plan) {
 }
 
 export async function getSubmissionById(id) {
+  if (!isFirebaseReady()) return null;
   const snap = await submissions().doc(id).get();
   return snap.exists ? snap.data() : null;
 }
 
 export async function storePendingPlan(planId, intake, plan, source) {
+  if (!isFirebaseReady()) return { id: planId, intake, generatedPlan: plan };
   const record = {
     id: planId,
     createdAt: new Date().toISOString(),
@@ -44,6 +57,7 @@ export async function storePendingPlan(planId, intake, plan, source) {
 }
 
 export async function attachLeadToPlan(planId, lead, source) {
+  if (!isFirebaseReady()) return { id: planId, lead, generatedPlan: null };
   const ref = submissions().doc(planId);
   const snap = await ref.get();
   if (!snap.exists) return null;
