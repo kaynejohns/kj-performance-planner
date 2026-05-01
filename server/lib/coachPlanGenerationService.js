@@ -1,7 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildCTA, buildPrompt, mockPlanFromInput } from "./plannerRules.js";
 
-// Lazy client — created on first use so process.env is fully loaded by then.
 let _client = null;
 function getClient() {
   if (!_client) {
@@ -10,9 +9,10 @@ function getClient() {
   return _client;
 }
 
-function getDefaultModel() {
-  return process.env.PERFORMANCE_PLANNER_MODEL || "claude-sonnet-4-6";
-}
+// Blueprint uses Haiku — fast (3-6s), fits within any serverless timeout.
+// Program generation uses Sonnet — better quality for long structured output.
+const BLUEPRINT_MODEL = () => process.env.BLUEPRINT_MODEL || "claude-haiku-4-5-20251001";
+const PROGRAM_MODEL   = () => process.env.PERFORMANCE_PLANNER_MODEL || "claude-sonnet-4-6";
 
 function safeJsonParse(text) {
   try {
@@ -31,21 +31,18 @@ function withHardcodedCta(plan, input) {
 
 /**
  * Raw prompt → assistant text (Anthropic Messages API).
- * Optional `system` for JSON-only refinement flows.
- * Used by /api/performance-planner/generate-program (user prompt only).
+ * Used by /api/performance-planner/generate-program and detailed-plan (large, Sonnet).
  */
 export async function generateWithModel(prompt, system) {
   if (!process.env.ANTHROPIC_API_KEY?.trim()) {
-    throw new Error("ANTHROPIC_API_KEY is not set. Add it to server/.env in the kj-app project.");
+    throw new Error("ANTHROPIC_API_KEY is not set.");
   }
 
-  // Short calls (initial plan with a system prompt) use non-streaming — fast enough.
-  // Large calls (full programme, no system prompt) use streaming — required by the SDK
-  // when max_tokens is high enough that the request could exceed 10 minutes non-streamed.
   const isLargeRequest = !system;
-  const maxTokens = isLargeRequest ? 32000 : 4000;
+  const model = isLargeRequest ? PROGRAM_MODEL() : BLUEPRINT_MODEL();
+  const maxTokens = isLargeRequest ? 32000 : 2500;
   const params = {
-    model: getDefaultModel(),
+    model,
     max_tokens: maxTokens,
     ...(system ? { system } : {}),
     messages: [{ role: "user", content: prompt }],
@@ -62,7 +59,6 @@ export async function generateWithModel(prompt, system) {
 }
 
 export async function generatePerformancePlan(input) {
-  // If no API key, fall back to mock so local dev without a key still works.
   if (!process.env.ANTHROPIC_API_KEY?.trim()) {
     console.warn("[generatePerformancePlan] No API key — using mock plan.");
     return withHardcodedCta(mockPlanFromInput(input), input);
