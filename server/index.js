@@ -413,8 +413,9 @@ Return ONLY valid JSON, no markdown, no wrapper:
 
 export { app };
 
-// Only bind a port when running directly (not inside a Netlify Function)
-if (process.env.NETLIFY !== "true") {
+// LAMBDA_TASK_ROOT is set by AWS Lambda (which Netlify Functions run on).
+// process.env.NETLIFY is only set at build time, not in the function runtime.
+if (!process.env.LAMBDA_TASK_ROOT) {
   const port = Number(process.env.PORT || 8787);
   app.listen(port, () => {
     console.log(`Performance Planner API running on http://localhost:${port}`);
