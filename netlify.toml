@@ -5,18 +5,24 @@
 
 [functions]
   node_bundler = "esbuild"
-  # generate-program can be slow — extend to max allowed (26s on free, 15min on background)
   [functions."api"]
     timeout = 26
 
-# Redirect all /api/* calls to the serverless function
+# API routes → serverless function
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# SPA fallback — serve index.html for all other routes
+# React planner SPA — serve planner.html for all /planner/* routes
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/planner/*"
+  to = "/planner.html"
   status = 200
+
+[[redirects]]
+  from = "/planner"
+  to = "/planner.html"
+  status = 200
+
+# Root → landing page (already public/index.html, served by default)

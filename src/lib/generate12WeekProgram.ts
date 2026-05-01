@@ -12,7 +12,7 @@ export async function generate12WeekProgram(
     apiBaseUrl,
     90000,
   );
-  return weeks;
+  return weeks ?? [];
 }
 
 export async function generate24WeekProgram(
@@ -28,5 +28,5 @@ export async function generate24WeekProgram(
     apiBaseUrl,
     120000,
   );
-  return weeks;
+  return weeks ?? [];
 }

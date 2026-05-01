@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Train With Structure — Build the foundation. Train with purpose.</title>
+<meta name="description" content="Stop chasing goals you haven't built the foundation for. Train With Structure builds you a personalised, sustainable training blueprint — for runners, HYROX, hybrid, and team sport athletes.">
+<meta property="og:title" content="Train With Structure — Build the foundation. Train with purpose.">
+<meta property="og:description" content="The training blueprint built around what you can actually sustain — not what burns you out.">
+<meta property="og:url" content="https://trainwithstructure.com">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --o:#ff8a1a;
+  --o-dim:rgba(255,138,26,0.13);
+  --o-bd:rgba(255,138,26,0.25);
+  --bg:#0e0e0e;
+  --bg-2:#151515;
+  --bg-3:#1a1a1a;
+  --txt:rgba(255,255,255,0.75);
+  --txt-low:rgba(255,255,255,0.4);
+  --txt-vlow:rgba(255,255,255,0.18);
+  --bd:rgba(255,255,255,0.07);
+  --bd-2:rgba(255,255,255,0.12);
+  --w:#fff;
+  --disp:'Barlow Condensed','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:var(--body);font-weight:400;line-height:1.65;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--o);color:#000}
+
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.wrap-sm{max-width:760px;margin:0 auto;padding:0 28px}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:18px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .3s,border-color .3s,padding .3s;
+  border-bottom:1px solid transparent;
+}
+nav.stuck{
+  background:rgba(14,14,14,0.92);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-color:var(--bd);
+  padding:12px 28px;
+}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-mark{
+  width:28px;height:28px;border-radius:6px;background:var(--o);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.brand-mark svg{width:14px;height:14px}
+.brand-name{
+  font-family:var(--disp);font-size:16px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--w);
+  white-space:nowrap;
+}
+.nav-cta{
+  background:var(--o);color:#000;
+  font-family:var(--body);font-size:13px;font-weight:600;
+  padding:9px 20px;border-radius:8px;text-decoration:none;
+  letter-spacing:.01em;
+  transition:background .15s,transform .1s;
+}
+.nav-cta:hover{background:#ff9c3a;transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  padding:130px 28px 90px;
+  position:relative;overflow:hidden;
+}
+
+/* Subtle gradient + grid texture */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 25%,rgba(255,138,26,0.07),transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 100%,rgba(255,138,26,0.04),transparent 60%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 30%,transparent 100%);
+  pointer-events:none;
+}
+
+.hero-inner{position:relative;z-index:1;max-width:880px}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--o);
+  border:1px solid var(--o-bd);background:var(--o-dim);
+  padding:6px 16px;border-radius:100px;
+  margin-bottom:32px;
+}
+.hero-tag-pulse{
+  width:6px;height:6px;border-radius:50%;background:var(--o);
+  animation:pulse 2s ease infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+
+.hero h1{
+  font-family:var(--disp);
+  font-size:clamp(44px,8vw,92px);
+  font-weight:900;line-height:.92;
+  text-transform:uppercase;letter-spacing:-.01em;color:var(--w);
+  margin-bottom:24px;
+}
+.hero h1 .accent{color:var(--o);display:block}
+
+.hero-sub{
+  font-size:clamp(16px,2vw,19px);font-weight:400;
+  color:rgba(255,255,255,0.55);
+  max-width:600px;margin:0 auto 40px;line-height:1.65;
+}
+
+.cta-primary{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--o);color:#000;
+  font-weight:700;font-size:15px;letter-spacing:.01em;
+  padding:15px 32px;border-radius:10px;text-decoration:none;
+  border:none;cursor:pointer;
+  box-shadow:0 0 40px rgba(255,138,26,0.25);
+  transition:background .15s,transform .15s,box-shadow .15s;
+}
+.cta-primary:hover{
+  background:#ff9c3a;transform:translateY(-2px);
+  box-shadow:0 0 64px rgba(255,138,26,0.4);
+}
+.cta-primary svg{width:16px;height:16px}
+
+.hero-trust{
+  margin-top:36px;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;
+}
+.trust-item{
+  display:flex;align-items:center;gap:7px;
+  font-size:13px;color:var(--txt-low);
+}
+.trust-item svg{width:14px;height:14px;color:var(--o)}
+.trust-sep{width:3px;height:3px;border-radius:50%;background:var(--txt-vlow)}
+
+/* ── SECTION BASE ── */
+section{padding:110px 0}
+.sect-tag{
+  display:inline-block;
+  font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--o);margin-bottom:14px;
+}
+.sect-h{
+  font-family:var(--disp);
+  font-size:clamp(36px,5.5vw,58px);
+  font-weight:900;line-height:.95;text-transform:uppercase;
+  letter-spacing:-.01em;color:var(--w);
+  margin-bottom:18px;
+}
+.sect-sub{
+  font-size:17px;color:var(--txt-low);
+  max-width:560px;line-height:1.65;
+}
+
+/* ── PROBLEM ── */
+.problem{
+  background:var(--bg);
+  border-top:1px solid var(--bd);
+}
+.problem-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--bd);border:1px solid var(--bd);border-radius:14px;
+  overflow:hidden;margin-top:60px;
+}
+.prob{
+  background:var(--bg-2);padding:36px 30px;
+  position:relative;
+  transition:background .2s;
+}
+.prob::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,var(--o),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.prob:hover{background:var(--bg-3)}
+.prob:hover::before{opacity:1}
+.prob-num{
+  font-family:var(--disp);
+  font-size:64px;font-weight:900;
+  color:rgba(255,255,255,0.05);
+  line-height:1;margin-bottom:14px;
+}
+.prob-title{
+  font-size:16px;font-weight:600;color:var(--w);
+  margin-bottom:10px;line-height:1.35;
+}
+.prob-body{font-size:14px;color:var(--txt-low);line-height:1.7}
+
+/* ── PILLARS ── */
+.pillars{
+  background:var(--bg-2);
+  border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);
+}
+.pillars-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:14px;margin-top:60px;
+}
+.pillar{
+  border:1px solid var(--bd);border-radius:14px;
+  background:var(--bg);padding:32px;
+  transition:border-color .2s,transform .2s;
+}
+.pillar:hover{
+  border-color:var(--o-bd);transform:translateY(-2px);
+}
+.pillar-icon{
+  width:44px;height:44px;border-radius:11px;
+  background:var(--o-dim);border:1px solid var(--o-bd);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+}
+.pillar-icon svg{width:20px;height:20px;color:var(--o)}
+.pillar-title{
+  font-size:17px;font-weight:600;color:var(--w);
+  margin-bottom:10px;line-height:1.3;
+}
+.pillar-body{font-size:14px;color:var(--txt-low);line-height:1.7}
+
+/* ── HOW IT WORKS ── */
+.how{background:var(--bg);border-top:1px solid var(--bd)}
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  margin-top:64px;position:relative;gap:0;
+}
+.steps::before{
+  content:'';position:absolute;
+  top:28px;left:calc(16.67% + 14px);right:calc(16.67% + 14px);
+  height:1px;
+  background:linear-gradient(90deg,var(--o-bd),rgba(255,138,26,0.1) 50%,transparent);
+  pointer-events:none;
+}
+.step{padding:0 22px;position:relative}
+.step-num-box{
+  width:56px;height:56px;border-radius:14px;
+  border:1px solid var(--o-bd);background:var(--o-dim);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:24px;position:relative;z-index:1;
+  background-color:var(--bg);
+}
+.step-num{
+  font-family:var(--disp);font-size:22px;font-weight:900;color:var(--o);
+}
+.step-title{
+  font-family:var(--disp);font-size:24px;font-weight:800;
+  text-transform:uppercase;line-height:1.05;color:var(--w);
+  margin-bottom:12px;letter-spacing:0;
+}
+.step-body{font-size:14px;color:var(--txt-low);line-height:1.7}
+
+/* ── WHO IT'S FOR ── */
+.who{
+  background:var(--bg-2);
+  border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);
+}
+.who-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  margin-top:60px;
+}
+.who-card{
+  border:1px solid var(--bd);border-radius:14px;
+  background:var(--bg);padding:28px 24px;
+  transition:border-color .2s,background .2s;
+  position:relative;overflow:hidden;
+}
+.who-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--o);transform:scaleX(0);transform-origin:left;
+  transition:transform .25s ease;
+}
+.who-card:hover{border-color:var(--bd-2);background:var(--bg-3)}
+.who-card:hover::after{transform:scaleX(1)}
+.who-icon{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--o-dim);border:1px solid var(--o-bd);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.who-icon svg{width:16px;height:16px;color:var(--o)}
+.who-name{
+  font-family:var(--disp);font-size:18px;font-weight:800;
+  text-transform:uppercase;color:var(--w);
+  margin-bottom:6px;letter-spacing:.01em;
+}
+.who-detail{
+  font-size:12px;color:var(--txt-low);line-height:1.55;
+}
+
+/* ── HONESTY BLOCK ── */
+.honesty{
+  background:var(--bg);border-top:1px solid var(--bd);
+}
+.honesty-inner{
+  max-width:780px;margin:0 auto;text-align:center;
+  padding:80px 28px;
+}
+.honesty-quote{
+  font-family:var(--disp);
+  font-size:clamp(28px,4.2vw,44px);
+  font-weight:800;text-transform:uppercase;line-height:1.05;
+  letter-spacing:-.005em;color:var(--w);
+  margin-bottom:24px;
+}
+.honesty-quote .accent{color:var(--o)}
+.honesty-body{
+  font-size:16px;color:var(--txt-low);line-height:1.75;
+  max-width:580px;margin:0 auto;
+}
+
+/* ── FINAL CTA ── */
+.final{
+  background:var(--bg);
+  border-top:1px solid var(--bd);
+  padding:120px 28px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.final::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(255,138,26,0.1),transparent 60%);
+  pointer-events:none;
+}
+.final-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
+.final h2{
+  font-family:var(--disp);
+  font-size:clamp(46px,7.5vw,80px);
+  font-weight:900;text-transform:uppercase;line-height:.92;
+  letter-spacing:-.01em;color:var(--w);
+  margin-bottom:20px;
+}
+.final h2 .accent{color:var(--o);display:block}
+.final-sub{
+  font-size:18px;color:var(--txt-low);
+  max-width:480px;margin:0 auto 40px;line-height:1.6;
+}
+.final-trust{margin-top:18px;font-size:13px;color:var(--txt-vlow)}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--bd);
+  padding:30px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;
+}
+.foot-brand{
+  font-family:var(--disp);font-size:13px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--txt-low);
+  text-decoration:none;
+  display:flex;align-items:center;gap:8px;
+}
+.foot-brand:hover{color:var(--w)}
+.foot-mark{
+  width:18px;height:18px;border-radius:4px;background:var(--o);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.foot-mark svg{width:10px;height:10px}
+.foot-note{font-size:12px;color:var(--txt-vlow)}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .who-grid{grid-template-columns:repeat(2,1fr)}
+  .pillars-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;gap:48px}
+  .steps::before{display:none}
+  .step{padding:0}
+  section{padding:80px 0}
+}
+@media(max-width:600px){
+  .problem-grid{grid-template-columns:1fr}
+  .who-grid{grid-template-columns:1fr}
+  nav{padding:14px 18px}
+  nav.stuck{padding:10px 18px}
+  .brand-name{font-size:14px}
+  .hero{padding:110px 22px 70px}
+  .wrap,.wrap-sm{padding:0 22px}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="#" class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <span class="brand-name">Train With Structure</span>
+  </a>
+  <a href="/planner" class="nav-cta">Get Your Blueprint</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">
+      <div class="hero-tag-pulse"></div>
+      Free · Built for athletes who want to last
+    </div>
+
+    <h1>
+      Stop chasing the goal.
+      <span class="accent">Build the foundation.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Most athletes are chasing a time that's 12 weeks away when they haven't built the base to get there. Train With Structure gives you a blueprint built around what you can actually sustain — not a plan that burns you out or breaks you down.
+    </p>
+
+    <a href="/planner" class="cta-primary">
+      Get Your Blueprint
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+
+    <div class="hero-trust">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Free
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        No account needed
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        3 minutes
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem -->
+<section class="problem reveal">
+  <div class="wrap">
+    <div class="sect-tag">The real problem</div>
+    <h2 class="sect-h">You don't need a harder plan.<br>You need an honest one.</h2>
+    <p class="sect-sub">Three things that derail most athletes — every single year — and almost nobody names them out loud.</p>
+
+    <div class="problem-grid">
+      <div class="prob">
+        <div class="prob-num">01</div>
+        <div class="prob-title">Chasing a time you're not ready for</div>
+        <div class="prob-body">The race date is 12 weeks away and the goal time assumes a fitness level you haven't built yet. Effort can't compress physiology. Most "failed" race blocks aren't failures — they were unrealistic from week one.</div>
+      </div>
+      <div class="prob">
+        <div class="prob-num">02</div>
+        <div class="prob-title">Following plans that ignore your history</div>
+        <div class="prob-body">Generic plans assume an average athlete with no injury history, full availability, and perfect consistency. You have a calf issue, six hours a week, and life that doesn't always cooperate. The plan breaks. So do you.</div>
+      </div>
+      <div class="prob">
+        <div class="prob-num">03</div>
+        <div class="prob-title">Ramping volume too fast and breaking down</div>
+        <div class="prob-body">More kilometres, more sessions, more intensity — without the load tolerance to absorb it. Then injury. Then time off. Then starting from zero again. It's not bad luck. It's the wrong progression.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pillars -->
+<section class="pillars reveal">
+  <div class="wrap">
+    <div class="sect-tag">What you get</div>
+    <h2 class="sect-h">A blueprint that fits<br>the athlete you actually are.</h2>
+    <p class="sect-sub">Not a template with your name pasted on it. A genuine training structure built around your sport, your history, and the time you actually have.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="pillar-title">Built for your sport, your level</div>
+        <div class="pillar-body">A HYROX athlete and a marathon runner have completely different limiters. The blueprint changes meaningfully based on what you actually do — not generic running advice for every endurance sport.</div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="pillar-title">Built around your week — not someone else's</div>
+        <div class="pillar-body">Six hours a week is not three hours doubled, and it's not ten hours halved. Your blueprint is calibrated to your real availability, not a fictional version of it.</div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="pillar-title">Injury-aware from day one</div>
+        <div class="pillar-body">Recurring injuries are almost always load tolerance problems — not flexibility problems, not bad luck. Your history triggers conservative load progression and the right strength work in every session.</div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="pillar-title">Honest about where you are vs where you want to be</div>
+        <div class="pillar-body">If your goal needs 18 months, we'll tell you. Clarity at the start is worth more than a plan that pretends you'll get there in 12 weeks. Honesty is the start of structure that actually works.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how reveal" id="how">
+  <div class="wrap">
+    <div class="sect-tag">How it works</div>
+    <h2 class="sect-h">Three steps.<br>Three minutes.</h2>
+    <p class="sect-sub">No quizzes, no fluff, no chasing emails before you see results. Fill it in, get your blueprint.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num-box"><div class="step-num">01</div></div>
+        <div class="step-title">Fill in your athlete profile</div>
+        <div class="step-body">Sport, current numbers, your goal, your weekly availability, your injury history. The honest version — not the version you wish were true.</div>
+      </div>
+      <div class="step">
+        <div class="step-num-box"><div class="step-num">02</div></div>
+        <div class="step-title">Get your blueprint</div>
+        <div class="step-body">A complete training structure built around your inputs. Phase logic, weekly structure, intensity guidance, and the specific reasons it's built the way it is.</div>
+      </div>
+      <div class="step">
+        <div class="step-num-box"><div class="step-num">03</div></div>
+        <div class="step-title">Train with a plan that fits your life</div>
+        <div class="step-body">Sessions you can actually complete. Progression that respects your history. Structure that's sustainable across weeks, not just impressive on paper.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Who it's for -->
+<section class="who reveal">
+  <div class="wrap">
+    <div class="sect-tag">Who it's for</div>
+    <h2 class="sect-h">Built for athletes<br>across endurance sport.</h2>
+    <p class="sect-sub">From recreational to competitive. From building your first base to chasing a serious PB. The framework adapts. The honesty doesn't.</p>
+
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="5" r="2"/><path d="M14.5 9 12 12l3 3-2 5"/><path d="M11 7 8 9l3 4-2 4"/><path d="M3 16h2l2-4"/></svg>
+        </div>
+        <div class="who-name">Runners</div>
+        <div class="who-detail">5k · 10k · Half · Marathon. From sub-30 5k to sub-3 marathon.</div>
+      </div>
+
+      <div class="who-card">
+        <div class="who-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M6.5 6.5v11"/><path d="M17.5 6.5v11"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
+        </div>
+        <div class="who-name">HYROX & Hybrid</div>
+        <div class="who-detail">Where running meets strength meets stations. The sport needs its own structure.</div>
+      </div>
+
+      <div class="who-card">
+        <div class="who-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/></svg>
+        </div>
+        <div class="who-name">Team Sport Athletes</div>
+        <div class="who-detail">Footy, rugby, AFL — building the aerobic base your sport demands without burning out.</div>
+      </div>
+
+      <div class="who-card">
+        <div class="who-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 16v6"/><path d="M4.93 4.93 9.17 9.17"/><path d="M14.83 14.83l4.24 4.24"/><path d="M2 12h6"/><path d="M16 12h6"/></svg>
+        </div>
+        <div class="who-name">Beginners</div>
+        <div class="who-detail">Building your first real base. The right starting structure changes everything that follows.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Honesty quote -->
+<section class="honesty reveal">
+  <div class="honesty-inner">
+    <div class="sect-tag">The thesis</div>
+    <div class="honesty-quote">
+      Most athletes don't need<br>
+      a <span class="accent">better plan.</span><br>
+      They need clarity about<br>
+      the one they have.
+    </div>
+    <p class="honesty-body">
+      The difference between athletes who improve and athletes who plateau is rarely effort. It's almost always clarity — knowing which lever to pull, in what order, with what load. That's what Train With Structure gives you.
+    </p>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final reveal" id="planner">
+  <div class="final-inner">
+    <h2>
+      Get your blueprint.
+      <span class="accent">Train with purpose.</span>
+    </h2>
+    <p class="final-sub">Three minutes. Zero hype. A clearer picture of your training than most athletes ever get.</p>
+    <a href="/planner" class="cta-primary" style="font-size:16px;padding:16px 38px">
+      Get Your Blueprint
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:18px;height:18px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+    <p class="final-trust">Free. No account. Takes 3 minutes.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <a href="#" class="foot-brand">
+    <div class="foot-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    Train With Structure
+  </a>
+  <div class="foot-note">© 2026 Train With Structure · trainwithstructure.com</div>
+</footer>
+
+<script>
+// Sticky nav
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('stuck', window.scrollY > 40);
+}, { passive: true });
+
+// Reveal on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
