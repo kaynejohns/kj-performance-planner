@@ -1,64 +1,82 @@
-export function buildDeterministicContext(input) {
-  const lines = [];
+import { buildPaceFactsBlock } from "./paceCalculator.js";
+
+// ── Beginner detection (server-side mirror of src/lib/beginnerDetection.ts) ──
+function isBeginnerPath(input) {
+  let score = 0;
+  const km = input.weeklyKm || 0;
+  const sessions = input.sessionsPerWeek || 0;
+  const hours = input.hoursPerWeek || 0;
+  const hasNoPB =
+    !input.currentBenchmark ||
+    input.currentBenchmark.toLowerCase().includes("no") ||
+    input.currentBenchmark.trim() === "";
   const injury = (input.injuryHistory || "").toLowerCase();
-  const hasLowerLimb = ["calf", "achilles", "hamstring", "lower back"].some((x) => injury.includes(x));
+  const hasLowerLimb = ["calf", "achilles", "hamstring", "knee", "plantar"].some((x) =>
+    injury.includes(x),
+  );
 
-  if (input.weakness === "Aerobic base") lines.push("Prioritize aerobic volume consistency and easy intensity distribution.");
-  if (input.weakness === "Strength") lines.push("Include 2 strength exposures weekly to improve force production and economy.");
-  if (input.weakness === "Fatigue resistance") lines.push("Control load distribution and avoid intensity stacking.");
-  if (hasLowerLimb) lines.push("Include progressive loading and durability language in recommendations and risk flags.");
-  if (input.hoursPerWeek <= 5) lines.push("Prioritize efficiency and fewer high-value sessions; reduce junk volume.");
-  if (input.level === "Beginner") lines.push("Keep language simple and avoid advanced terminology.");
-  if (["Advanced", "Sub-elite", "Elite"].includes(input.level)) lines.push("Use sharper, performance-specific wording.");
-  if (input.goal === "Return from injury") lines.push("Prioritize controlled load progression, durability, and strength support.");
-  if (input.sport === "HYROX") lines.push("Blend aerobic development, strength endurance, and race-specific conditioning.");
-  if (input.sport === "Running") lines.push("Bias toward aerobic development, threshold work, economy, and long-run structure.");
-  if (input.sport === "Team Sport") lines.push("Bias toward repeatability, robustness, aerobic support, and strength qualities.");
-  if (input.goal === "Improve 5k / 10k") lines.push("Reference pacing economy, threshold durability, and long-run progression.");
-  if (input.goal === "Improve HYROX performance") lines.push("Reference station-to-run transitions, compromised running, and sustainable race output.");
-  if (input.goal === "Improve race readiness") lines.push("Use race-specific microcycle focus and controlled sharpening language.");
+  if (input.level === "Beginner") score += 3;
+  if (input.level === "Recreational") score += 2;
+  if (hasNoPB) score += 3;
+  if (km > 0 && km < 15) score += 2;
+  if (km === 0 && input.sport === "Running") score += 3;
+  if (sessions <= 2) score += 2;
+  if (hours <= 3) score += 1;
+  if (hasLowerLimb && km < 20) score += 2;
+  if (input.sport === "HYROX" && km < 15 && sessions <= 2) score += 3;
 
-  return lines;
+  return score >= 4;
 }
 
-export function buildPrompt(input) {
-  const rules = buildDeterministicContext(input).map((x) => `- ${x}`).join("\n");
-  return `You are an elite performance coach specializing in endurance, hybrid, and field sport preparation.
+function buildBeginnerPrompt(input) {
+  const isHyrox = input.sport === "HYROX" || input.sport === "Hybrid";
+  const isMarathon =
+    input.eventType === "Marathon" || input.eventType === "Half Marathon";
+  const hasLowerLimb = ["calf", "achilles", "hamstring", "knee", "plantar"].some((x) =>
+    (input.injuryHistory || "").toLowerCase().includes(x),
+  );
+  const sessions = Math.min(input.sessionsPerWeek || 3, 4);
 
-Your job is to analyze the athlete intake below and return a structured performance summary.
+  return `You are a senior performance coach. This athlete is not yet ready for structured periodisation. Their primary problem is building the habit of consistent training — not fitness, not threshold, not periodisation. Giving them a Norwegian Method programme right now would be the wrong answer.
 
-This is not a detailed training program.
-Do not write a day-by-day prescription.
-Do not write long explanations.
-Be concise, practical, and specific.
-
-Athlete intake:
-- Sport: ${input.sport}
+ATHLETE:
+- Sport: ${input.sport} / ${input.eventType || ""}
 - Level: ${input.level}
-- Goal: ${input.goal}
-- Sessions per week: ${input.sessionsPerWeek}
-- Hours per week: ${input.hoursPerWeek}
-- Main weakness: ${input.weakness}
-- Injury / training history: ${input.injuryHistory || "None provided"}
-- Equipment access: ${(input.equipmentAccess || []).join(", ") || "Not specified"}
-- Priority note: ${input.priority || "None provided"}
+- Sessions/week: ${input.sessionsPerWeek}
+- Hours/week: ${input.hoursPerWeek}h
+- Weekly volume: ${input.weeklyKm || "not provided"}km
+- Current benchmark: ${input.currentBenchmark || "none"}
+- Goal: ${input.goalBenchmark || "not specified"}
+- Weakness: ${input.weakness}
+- Injury history: ${input.injuryHistory || "none"}
 
-Coaching rules:
-- Identify the most important performance bottlenecks first
-- Match the output to the athlete’s level and available time
-- If the athlete has low available time, prioritize efficiency
-- If injury history suggests calf, Achilles, hamstring, or lower back issues, include durability and load-progression language
-- If the sport is running, prioritize aerobic development, threshold structure, economy, and long-run support
-- If the sport is HYROX or hybrid, combine aerobic development, strength endurance, and race-specific conditioning
-- If the athlete is beginner, keep the advice simple and foundational
-- If the athlete is advanced or sub-elite, use more performance-specific language
-- Recommendations should be high-level strategic priorities only
-- Avoid hype, fluff, or vague motivation
-- Sound like a real coach
+YOUR JOB:
+Generate a simplified foundation output. Not a periodisation plan. Not phase structure. A clear, honest picture of where this athlete is and exactly what they need to do for the next 6–8 weeks to build the foundation that makes structured training possible.
 
-Additional deterministic context:
-${rules}
+RULES FOR THIS OUTPUT:
+- headline: One honest statement about where they are right now. Name the real situation — they are building a base before any structured training is appropriate. Do not soften this. Example: "Before threshold work, phase structure, or race-specific training — you need 6–8 weeks of consistent, easy movement first."
 
+- snapshot.mainLimiter: "Consistency and training habit" — this is almost always the real limiter at this stage, not aerobic base or threshold.
+
+- drivers: The 2–3 real reasons structured training won't work yet. Be specific and honest. Examples: no established training base to build quality work on top of; injury risk is high when volume increases without structural foundation; periodisation requires consistent attendance — currently missing.
+
+- bigRocks: 3–4 simple, achievable priorities for the next 6–8 weeks. These should be so simple they are almost impossible to get wrong. Examples: show up for every planned session — completion rate is the only metric that matters right now; every run at fully conversational pace — if you cannot speak, slow down immediately; one strength session per week — bodyweight only, 30 minutes; sleep 7–8 hours.
+
+- weeklyStructure: Simple, achievable for ${sessions} sessions.
+  ${isHyrox ? "2 easy aerobic sessions + 1–2 bodyweight strength sessions." : sessions <= 3 ? "All easy runs — no quality sessions yet." : "3 easy runs + 1 bodyweight strength session."}
+  No threshold work. No intervals. No quality sessions.
+  ${hasLowerLimb ? "Include a specific note about eccentric loading for the injury history." : ""}
+
+- riskFlags: The specific risks for THIS athlete if they skip the foundation and jump straight to structured training.
+  ${hasLowerLimb ? "Lead with injury recurrence risk given their history." : "Lead with burnout and dropout risk from too much too soon."}
+
+- metrics: Simple, habit-based metrics only. Examples: sessions completed per week; can hold conversation during runs; feeling recovered between sessions. No pace metrics. No volume targets yet.
+
+- cta.title: "Your foundation phase starts here"
+- cta.description: One honest sentence about what becomes possible after 6–8 weeks of consistent foundation work.
+- cta.buttonLabel: "Start my foundation phase"
+
+${isHyrox ? `HYROX-SPECIFIC: Do not prescribe km-based targets. Strength sessions are bodyweight only at this stage. Aerobic sessions are easy effort, 30–45 min max. Station work comes after 6–8 weeks of foundation.\n` : ""}${isMarathon ? `MARATHON-SPECIFIC: Long run should be no more than 10–12km at this stage. All running at fully conversational pace. Fuelling practice can wait until base is established.\n` : ""}
 Return ONLY valid JSON in exactly this schema:
 {
   "headline": "string",
@@ -69,25 +87,247 @@ Return ONLY valid JSON in exactly this schema:
     "availability": "string",
     "mainLimiter": "string"
   },
-  "drivers": ["string", "string", "string"],
-  "bigRocks": ["string", "string", "string", "string"],
-  "weeklyStructure": [
-    { "day": "Mon", "focus": "string" },
-    { "day": "Tue", "focus": "string" },
-    { "day": "Wed", "focus": "string" },
-    { "day": "Thu", "focus": "string" },
-    { "day": "Fri", "focus": "string" },
-    { "day": "Sat", "focus": "string" },
-    { "day": "Sun", "focus": "string" }
-  ],
-  "riskFlags": ["string", "string", "string"],
-  "metrics": ["string", "string", "string", "string", "string"],
+  "drivers": ["string"],
+  "bigRocks": ["string"],
+  "weeklyStructure": [{ "day": "string", "focus": "string" }],
+  "riskFlags": ["string"],
+  "metrics": ["string"],
   "cta": {
     "title": "string",
     "description": "string",
     "buttonLabel": "string"
   }
 }`;
+}
+
+function buildConstraints(input, hasLowerLimb) {
+  const c = [];
+  const isHyroxLike = input.sport === "HYROX" || input.sport === "Hybrid";
+
+  if (isHyroxLike) {
+    c.push("HYROX/hybrid outputs must reference station-to-run transitions and compromised running. Never give km-based volume. Use hours.");
+    c.push("Strength sessions are primary. Aerobic base supports race output, not the other way round.");
+  }
+  if (input.sport === "Running") {
+    c.push(
+      "Volume in km ranges. Long run is structural easy aerobic. Name LT1-oriented quality work explicitly (first lactate threshold) — never frame quality aerobic intensity as LT2 or MLSS.",
+    );
+    if (["Half Marathon", "Marathon"].includes(input.eventType)) {
+      c.push("Marathon/HM: fueling and durability are as important as fitness. Name them.");
+    }
+  }
+  if (input.sport === "Team Sport") {
+    c.push("Game-day load counts as a session. Aerobic base supports repeatability. Strength prevents breakdown.");
+  }
+
+  if (input.level === "Beginner") {
+    c.push("Simple language. Consistency before intensity. Foundation before optimisation.");
+  }
+  if (["Advanced", "Sub-elite", "Elite"].includes(input.level)) {
+    c.push("Assume they know the basics. Name the margins. Be specific about what's actually limiting them at this level.");
+  }
+
+  if (input.hoursPerWeek <= 5) {
+    c.push("Time-limited: name the 2 highest-leverage sessions. Cut anything that doesn't directly serve the goal.");
+  }
+  if (input.hoursPerWeek >= 10) {
+    c.push("High volume: recovery quality is as important as load. Flag intensity stacking risk if quality sessions are high.");
+  }
+
+  if (hasLowerLimb) {
+    c.push("Lower limb history: durability work is non-negotiable. Progressive load only. Name re-injury risk explicitly in flags.");
+  }
+
+  if (input.weakness === "Fatigue resistance") {
+    c.push("Fatigue resistance: the problem is usually intensity stacking or insufficient easy volume, not fitness ceiling.");
+  }
+  if (input.weakness === "Strength") {
+    c.push("Strength limiter in an endurance context means force production, not gym maxes. Name the movement patterns that matter.");
+  }
+
+  if (input.currentBenchmark && input.goalBenchmark) {
+    c.push(
+      `Gap between current (${input.currentBenchmark}) and goal (${input.goalBenchmark}) must shape the timeline tone. Honest framing over optimism.`,
+    );
+  }
+
+  if ((input.qualitySessionsPerWeek || 0) >= 3 && input.hoursPerWeek <= 7) {
+    c.push("High quality session ratio for available hours — flag intensity stacking as a risk.");
+  }
+
+  return c;
+}
+
+/** Norwegian Method framework: LT1, 80/10/10, language rules, sport-specific emphasis. */
+function buildNorwegianMethodFramework(input) {
+  const lines = [];
+
+  lines.push(
+    "INTENSITY MODEL — 80 / 10 / 10: Approximately 80% of training should be low intensity (well below LT1: truly easy, conversational breathing, aerobic base). About 10% should be LT1-associated work (first lactate threshold — controlled, sustainable rhythm where lactate rises slightly but stays manageable; use full sentences when you explain this in drivers, big rocks, or weekly structure). About 10% should be high-intensity work. If the athlete's stated quality-session count or hours make that split unrealistic, say so honestly in drivers or riskFlags and describe how to move toward the model.",
+  );
+
+  lines.push(
+    "THRESHOLD LANGUAGE — LT1 ONLY: Whenever you prescribe or name structured aerobic intensity (often called 'threshold' colloquially), you must frame it as work at or around LT1 — the first lactate threshold (first lactate turnpoint). You may use full sentences to define LT1 for the athlete. Never describe this bucket as LT2, anaerobic threshold, MLSS, or 'race-pace threshold'.",
+  );
+
+  lines.push(
+    'LANGUAGE RULES (Section 8): Do not use the word "moderate" (or synonyms like "medium intensity") for training zones. Do not say "push yourself", "dig deep", or similar hype. If pace values are relevant (e.g. in headline or gap analysis), use ONLY the pre-computed values from the PRE-COMPUTED PACE FACTS block — never calculate, derive, or estimate pace yourself. Do not prescribe pace in session descriptions — use duration, breathing pattern (conversational, short phrases only), rhythm, and perceived effort.',
+  );
+
+  lines.push(
+    "VOICE: Educational and direct. Briefly explain why a choice matters. No generic motivation or filler.",
+  );
+
+  if (input.sport === "Running") {
+    lines.push(
+      "SPORT-SPECIFIC (Section 7 — Running): Easy volume below LT1 is the backbone. Long runs are primarily structural easy aerobic. LT1 sessions are discrete, controlled, and a small fraction of the week. Sharper race-specific work belongs in the high-intensity 10% bucket. Tie weeklyStructure to feel and duration, not pace.",
+    );
+  } else if (input.sport === "HYROX" || input.sport === "Hybrid") {
+    lines.push(
+      "SPORT-SPECIFIC (Section 7 — HYROX / hybrid): Aerobic base and strength-endurance both matter; describe running segments with feel, breathing, and duration — not pace. Race-specific work is station work plus running transitions; preserve quality of movement under fatigue. Apply 80/10/10 across the whole weekly plan (stations + runs combined).",
+    );
+  } else if (input.sport === "Team Sport") {
+    lines.push(
+      "SPORT-SPECIFIC (Section 7 — Team sport): Intermittent efforts and repeatability — easy aerobic work builds recovery between high outputs. The high-intensity 10% includes game-like and acceleration-style work; LT1-oriented work supports repeat efforts without pace prescriptions.",
+    );
+  } else {
+    lines.push(
+      "SPORT-SPECIFIC (Section 7 — General performance): Apply 80/10/10 and LT1 framing to the dominant training modes (conditioning, strength, movement) without pace-based prescriptions; use the same language rules.",
+    );
+  }
+
+  return lines;
+}
+
+export function buildPrompt(input) {
+  if (isBeginnerPath(input)) return buildBeginnerPrompt(input);
+
+  const hasBenchmarks = Boolean(input.currentBenchmark?.trim() && input.goalBenchmark?.trim());
+  const hasLowerLimb = ["calf", "achilles", "hamstring", "lower back"].some((x) =>
+    (input.injuryHistory || "").toLowerCase().includes(x),
+  );
+
+  const benchmarkBlock = hasBenchmarks
+    ? `- Current PB: ${input.currentBenchmark}
+- Goal time: ${input.goalBenchmark}
+- Gap note: Apply honest framing — large gaps require multi-phase language, not single-block promises`
+    : `- Current benchmark: Not provided`;
+
+  const hasWeeklyKm = input.weeklyKm != null && Number(input.weeklyKm) > 0;
+  const weeklyLoadBlock = hasWeeklyKm
+    ? `- Current weekly volume: ${input.weeklyKm}km/week
+- Longest run: ${input.longestRun != null ? `${input.longestRun}km` : "Not provided"}`
+    : input.sport === "HYROX" || input.sport === "Hybrid"
+      ? `- Weekly training load measured in hours, not km`
+      : `- Weekly volume: Not provided`;
+
+  const constraints = buildConstraints(input, hasLowerLimb);
+  const norwegianFramework = buildNorwegianMethodFramework(input);
+  const paceFactsBlock = buildPaceFactsBlock(input);
+
+  return `You are a senior performance scientist with 20 years working with endurance and hybrid athletes.
+You have just reviewed this athlete's intake. Write a sharp, specific performance summary.
+Every claim must be earned by their data. No filler. No generic motivation. No vague advice.
+Sound like a coach who has seen exactly this profile before and knows what's actually limiting them.
+Your recommendations follow the Norwegian Method coaching framework below (LT1-based intensity language, 80/10/10 distribution, and output language rules).
+
+ATHLETE PROFILE:
+- Sport: ${input.sport}
+- Event: ${input.eventType}
+- Level: ${input.level}
+- Primary goal: ${input.goal}
+- Sessions per week: ${input.sessionsPerWeek}
+- Hours available: ${input.hoursPerWeek}h/week
+- Quality sessions: ${input.qualitySessionsPerWeek != null ? `${input.qualitySessionsPerWeek}` : "Not specified"}/week
+- Main weakness (self-reported): ${input.weakness}
+${benchmarkBlock}
+${weeklyLoadBlock}
+- Injury history: ${input.injuryHistory || "None reported"}
+- Equipment: ${(input.equipmentAccess || []).join(", ") || "Not specified"}
+- Priority note: ${input.priority || "None"}
+- Timeline: ${input.timelineWeeks ? `${input.timelineWeeks} weeks` : "Not specified"}
+${paceFactsBlock ? `\n${paceFactsBlock}` : ""}
+CONSTRAINTS — apply these silently, do not state them:
+${constraints.map((x) => `- ${x}`).join("\n")}
+
+NORWEGIAN METHOD FRAMEWORK — follow in all JSON strings (this section is not silent; your wording must comply):
+${norwegianFramework.map((x) => `- ${x}`).join("\n")}
+
+OUTPUT QUALITY BAR:
+- headline: One punchy sentence naming the real bottleneck. Reference their specific event or gap if possible. Not generic. Obey Norwegian Method language rules (no banned words, no pace).
+- snapshot.mainLimiter: The single most important thing holding this athlete back. Be specific, not categorical.
+- drivers: 2–4 actual physiological or structural reasons they're not progressing. Skip the obvious. Be specific. Where intensity is relevant, reference LT1 (first lactate threshold) for controlled quality work — not LT2.
+- bigRocks: 3–5 strategic priorities in impact order. Each must be actionable and tied to their numbers. Reflect the 80/10/10 distribution unless you explicitly justify a temporary skew.
+- weeklyStructure: Match their ${input.sessionsPerWeek} sessions and ${input.hoursPerWeek}h. If they train 4 days, only schedule 4 days. Rest days are legitimate structure. Session foci must respect ~80% easy (below LT1), ~10% LT1-oriented work, ~10% high intensity — describe each day with feel and duration, never pace.
+- riskFlags: Real risks from their actual profile. Not boilerplate warnings.
+- metrics: Measurable KPIs tied to their event and goal — session completion, consistency, subjective readiness, time-at-intent, breathing markers, or load progression. Do not use pace-based metrics (e.g. avoid "threshold pace" or min/km).
+
+Return ONLY valid JSON in exactly this schema. Arrays may have 2–5 items — use as many as genuinely apply:
+{
+  "headline": "string",
+  "snapshot": {
+    "sport": "string",
+    "level": "string",
+    "goal": "string",
+    "availability": "string",
+    "mainLimiter": "string"
+  },
+  "drivers": ["string"],
+  "bigRocks": ["string"],
+  "weeklyStructure": [
+    { "day": "string", "focus": "string" }
+  ],
+  "riskFlags": ["string"],
+  "metrics": ["string"],
+  "cta": {
+    "title": "string",
+    "description": "string",
+    "buttonLabel": "string"
+  },
+  "gapSummary": {
+    "currentBenchmark": "string",
+    "goalBenchmark": "string",
+    "improvementRequired": "string",
+    "classification": "string",
+    "timelineEstimate": "string",
+    "summary": "string",
+    "primaryPriorities": ["string"]
+  }
+}
+
+For gapSummary:
+- currentBenchmark / goalBenchmark: echo back what was provided, or "Not provided". If PRE-COMPUTED PACE FACTS are present, append the correct pace in brackets, e.g. "2:23:00 (3:23/km)"
+- improvementRequired: the delta in plain language (e.g. "15 minutes off marathon time"). Use the pre-computed time gap if provided — do not calculate it yourself.
+- classification: one of "Achievable in one block", "Moderate challenge — 2–3 blocks", "Significant challenge — 4–6 blocks", "Long-term transformation — 6+ blocks"
+- timelineEstimate: honest plain-language estimate (e.g. "12–20 weeks with consistent training")
+- summary: 1–2 sentences on what closing this gap actually requires
+- primaryPriorities: 2–3 the most important things to close the gap`;
+}
+
+/** Hardcoded conversion CTA (applied after model parse; overrides `cta` in the JSON). */
+export function buildCTA(input) {
+  if (input.sport === "HYROX" || input.sport === "Hybrid") {
+    return {
+      title: "Get your full HYROX block",
+      description:
+        "Your 4-week plan includes station-specific conditioning, hybrid load structure, and weekly targets built around your race date.",
+      buttonLabel: "Unlock my HYROX plan",
+    };
+  }
+  if (["Marathon", "Half Marathon"].includes(input.eventType)) {
+    return {
+      title: "Get your full training block",
+      description:
+        "Your 4-week plan includes progressive volume targets, long run structure, and the threshold work that actually moves your race time.",
+      buttonLabel: "Unlock my plan",
+    };
+  }
+  return {
+    title: "Get your full 4-week plan",
+    description:
+      "Your plan includes weekly load targets, session structure, and progression markers built around your specific goal and timeline.",
+    buttonLabel: "Unlock my plan",
+  };
 }
 
 export function mockPlanFromInput(input) {

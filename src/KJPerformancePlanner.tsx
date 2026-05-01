@@ -7,7 +7,6 @@ export default function KJPerformancePlanner() {
       brandName="KJ Performance"
       apiBaseUrl={apiBaseUrl}
       sourceTag="homepage"
-      ctaUrl="#"
       monetizationLinks={{
         detailedPlanUrl: "#",
       }}

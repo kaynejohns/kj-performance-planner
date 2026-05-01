@@ -1,4 +1,5 @@
 import { getCoachModelApiKey, getCoachModelName } from "./coachModelConfig.js";
+import { generateWithModel } from "./coachPlanGenerationService.js";
 
 function safeJsonParse(text) {
   try {
@@ -8,7 +9,35 @@ function safeJsonParse(text) {
   }
 }
 
+function withGuaranteedDailySessions(plan, basePlan) {
+  if (!plan?.weeklyBreakdown || !Array.isArray(plan.weeklyBreakdown)) return plan;
+  const baseWeeks = Array.isArray(basePlan?.weeklyBreakdown) ? basePlan.weeklyBreakdown : [];
+  const weeks = plan.weeklyBreakdown.map((week, idx) => {
+    if (Array.isArray(week?.dailySessions) && week.dailySessions.length > 0) return week;
+    const fallback = baseWeeks[idx]?.dailySessions;
+    if (Array.isArray(fallback) && fallback.length > 0) {
+      return { ...week, dailySessions: fallback };
+    }
+    return week;
+  });
+  return { ...plan, weeklyBreakdown: weeks };
+}
+
 export async function refineDetailedPlan(payload) {
+  if (process.env.ANTHROPIC_API_KEY?.trim()) {
+    try {
+      const content = await generateWithModel(
+        payload.refinementPrompt,
+        "Return only valid JSON. Keep schema exact.",
+      );
+      const parsed = safeJsonParse(content);
+      if (!parsed) return payload.basePlan;
+      return withGuaranteedDailySessions(parsed, payload.basePlan);
+    } catch {
+      return payload.basePlan;
+    }
+  }
+
   const apiKey = getCoachModelApiKey();
   if (!apiKey) return payload.basePlan;
 
@@ -31,7 +60,8 @@ export async function refineDetailedPlan(payload) {
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content;
     const parsed = safeJsonParse(content);
-    return parsed || payload.basePlan;
+    if (!parsed) return payload.basePlan;
+    return withGuaranteedDailySessions(parsed, payload.basePlan);
   } catch {
     return payload.basePlan;
   }

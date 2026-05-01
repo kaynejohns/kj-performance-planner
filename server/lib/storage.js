@@ -1,5 +1,6 @@
-// In-memory adapter; replace with DB client (Supabase/Postgres/Firebase/Airtable) as needed.
-const db = new Map();
+import { getDb } from "./firebase.js";
+
+const submissions = () => getDb().collection("submissions");
 
 export async function createLeadSubmission(data) {
   const id = crypto.randomUUID();
@@ -10,18 +11,48 @@ export async function createLeadSubmission(data) {
     generatedPlan: null,
     status: "pending",
   };
-  db.set(id, record);
+  await submissions().doc(id).set(record);
   return record;
 }
 
 export async function saveGeneratedPlan(submissionId, plan) {
-  const record = db.get(submissionId);
-  if (!record) return null;
-  const updated = { ...record, generatedPlan: plan, status: "generated" };
-  db.set(submissionId, updated);
+  const ref = submissions().doc(submissionId);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const updated = { ...snap.data(), generatedPlan: plan, status: "generated" };
+  await ref.set(updated);
   return updated;
 }
 
 export async function getSubmissionById(id) {
-  return db.get(id) || null;
+  const snap = await submissions().doc(id).get();
+  return snap.exists ? snap.data() : null;
+}
+
+export async function storePendingPlan(planId, intake, plan, source) {
+  const record = {
+    id: planId,
+    createdAt: new Date().toISOString(),
+    source: source || null,
+    intake,
+    lead: null,
+    generatedPlan: plan,
+    status: "generated_pending_lead",
+  };
+  await submissions().doc(planId).set(record);
+  return record;
+}
+
+export async function attachLeadToPlan(planId, lead, source) {
+  const ref = submissions().doc(planId);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const updated = {
+    ...snap.data(),
+    source: source || snap.data().source || null,
+    lead,
+    status: "generated",
+  };
+  await ref.set(updated);
+  return updated;
 }
