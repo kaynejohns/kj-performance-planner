@@ -11,7 +11,7 @@ export const eventOptions = [
   "Return from injury",
   "Team sport conditioning",
 ] as const;
-export const levelOptions = ["Beginner", "Intermediate", "Advanced", "Sub-elite", "Elite"] as const;
+export const levelOptions = ["Beginner", "Recreational", "Intermediate", "Advanced", "Sub-elite", "Elite"] as const;
 export const goalOptions = [
   "Improve 5k / 10k",
   "Improve HYROX performance",
@@ -51,8 +51,8 @@ export function validateIntake(input: IntakeInput): string[] {
   if (!input.sport) errors.push("Sport is required.");
   if (!input.eventType) errors.push("Event type is required.");
   if (!input.level) errors.push("Level is required.");
-  if (!input.goal) errors.push("Goal is required.");
-  if (!input.currentBenchmark?.trim()) errors.push("Current benchmark is required (or enter 'No current PB').");
+  // goal is auto-derived from eventType — not required from user input
+  // currentBenchmark is optional — form allows blank for first-timers
   if (!input.goalBenchmark?.trim()) errors.push("Goal benchmark is required.");
   if (!input.weakness) errors.push("Main weakness is required.");
   if (!input.sessionsPerWeek || input.sessionsPerWeek < 1) errors.push("Sessions per week must be at least 1.");

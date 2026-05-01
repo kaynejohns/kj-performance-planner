@@ -4,9 +4,11 @@ import { buildDetailedPlanPrompt } from "./plannerPromptBuilder";
 import { buildQuantitativeBlock } from "./plannerVolumeProgression";
 import type { DetailedPlanOutput, IntakeInput } from "./types";
 
-function hasLowerLimbRisk(injuryHistory?: string) {
+function hasLowerLimbRisk(injuryHistory?: string, injuryAreas?: string[]) {
+  const lowerLimbAreas = ["Calf / Achilles", "Knee", "Hip / Glute", "Lower back / SI", "Foot / Plantar"];
+  if ((injuryAreas || []).some((a) => lowerLimbAreas.includes(a))) return true;
   const text = (injuryHistory || "").toLowerCase();
-  return ["calf", "achilles", "hamstring", "lower back"].some((x) => text.includes(x));
+  return ["calf", "achilles", "hamstring", "lower back", "knee", "hip", "plantar"].some((x) => text.includes(x));
 }
 
 function buildFocus(input: IntakeInput, drivers: string[]): [string, string, string] {
@@ -41,7 +43,7 @@ export function generate4WeekPlanBase(
         : logicPlan.profile.timeProfile === "high"
           ? "highCapacity"
           : "standard";
-  const injuryRisk = hasLowerLimbRisk(input.injuryHistory);
+  const injuryRisk = hasLowerLimbRisk(input.injuryHistory, input.injuryAreas);
   const isHyrox = input.sport === "HYROX" || input.sport === "Hybrid";
   const isRunning = input.sport === "Running";
   const enduranceRunning =

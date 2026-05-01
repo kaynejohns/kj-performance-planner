@@ -1,5 +1,5 @@
 export type Sport = "Running" | "HYROX" | "Hybrid" | "Team Sport" | "General Performance";
-export type Level = "Beginner" | "Intermediate" | "Advanced" | "Sub-elite" | "Elite";
+export type Level = "Beginner" | "Recreational" | "Intermediate" | "Advanced" | "Sub-elite" | "Elite";
 export type EventType =
   | "5k"
   | "10k"
@@ -18,6 +18,24 @@ export type Weakness =
   | "Durability / injury resilience"
   | "Race-specific conditioning";
 
+export type InjuryStatus =
+  | "None — training pain-free"
+  | "Minor niggle (not affecting training)"
+  | "Managing a recurring issue"
+  | "Returning from injury / time off";
+
+export type TrainingConsistency =
+  | "Very consistent — hitting nearly every session"
+  | "Mostly consistent — missing 1–2 sessions/week"
+  | "Patchy — training when I can"
+  | "Just getting back into it";
+
+export type FatigueLevel =
+  | "Fresh and recovered"
+  | "Normal — some accumulated fatigue"
+  | "Tired — carrying significant fatigue"
+  | "Burnt out — need a lighter start";
+
 export interface IntakeInput {
   sport: Sport;
   eventType: EventType;
@@ -32,6 +50,13 @@ export interface IntakeInput {
   qualitySessionsPerWeek?: number;
   timelineWeeks?: number;
   weakness: Weakness;
+  // Structured injury & load fields (replace free-text injuryHistory)
+  injuryStatus?: InjuryStatus;
+  injuryAreas?: string[];
+  trainingConsistency?: TrainingConsistency;
+  recentBigWeek?: number;
+  fatigueLevel?: FatigueLevel;
+  // Legacy free-text kept for backward compat
   injuryHistory?: string;
   equipmentAccess?: string[];
   priority?: string;
@@ -45,6 +70,7 @@ export interface LeadInput {
 }
 
 export interface PlannerOutput {
+  _id?: string;
   headline: string;
   snapshot: {
     sport: string;
@@ -81,6 +107,17 @@ export interface DetailedPlanWeekSession {
   purpose: string;
 }
 
+export interface SessionLayout {
+  day: string; // "Monday"
+  type: "easy" | "threshold" | "long" | "strength" | "recovery" | "race-specific" | "rest";
+  title: string;
+  duration: string;
+  structure: string[];
+  intensityGuide: string;
+  purpose: string;
+  coachNote?: string;
+}
+
 export interface DetailedPlanWeek {
   week: number;
   theme: string;
@@ -94,6 +131,8 @@ export interface DetailedPlanWeek {
   strengthTarget: string;
   keyAdaptationGoal: string;
   guardrail: string;
+  /** Per-day session prescriptions when present (from AI refinement). */
+  dailySessions?: SessionLayout[];
   /** Measurable week targets (ranges). */
   progressionMarkers?: string[];
   /** Half / marathon running: cumulative threshold-type work band for the week. */
@@ -103,6 +142,9 @@ export interface DetailedPlanWeek {
   /** HYROX / hybrid: station cluster / density progression for the week. */
   hyroxStationDensityTarget?: string;
 }
+
+/** One week in a multi-week programme (same shape as detailed-plan weeks). */
+export type WeeklyBreakdown = DetailedPlanWeek;
 
 export interface DetailedPlanOutput {
   blockOverview: {
@@ -155,11 +197,17 @@ export interface SubmissionRecord extends LeadInput, IntakeInput {
 export interface SubmitResponse {
   ok: boolean;
   submissionId: string;
-  plan: PlannerOutput;
+  plan?: PlannerOutput;
 }
 
 export interface MonetizationLinks {
   detailedPlanUrl?: string;
   bookingUrl?: string;
   checkoutUrl?: string;
+}
+
+export interface FullProgram {
+  length: 4 | 12 | 24;
+  phases: { name: string; weeks: number[]; focus: string }[];
+  weeklyBreakdown: DetailedPlanWeek[];
 }
