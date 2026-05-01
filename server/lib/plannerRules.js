@@ -299,6 +299,9 @@ Return ONLY valid JSON in exactly this schema. Arrays may have 2–5 items — u
     "capacityMetrics": [
       { "label": "string", "score": 0, "delta": 0, "status": "string" }
     ],
+    "phases": [
+      { "label": "string", "duration": "string", "focus": "string" }
+    ],
     "flags": [
       { "tag": "string", "message": "string" }
     ]
@@ -317,6 +320,7 @@ For readout:
 - feasibilityScore: integer 0–100. How feasible the athlete's goal is given their current capacity. 90+ = aligned, 75–89 = achievable, 60–74 = ambitious, 40–59 = significant challenge, <40 = unrealistic without major changes. Be honest — do not inflate.
 - feasibilityLabel: one of "aligned", "achievable", "ambitious", "significant challenge", "unrealistic"
 - capacityMetrics: exactly 4 metrics scored 0–100 relevant to this athlete's sport and goal. Choose the 4 most relevant from: Aerobic Base, Load Tolerance, Consistency, Strength Base, Speed Reserve, Race-Specific Fitness, Threshold Fitness, Recovery Quality, Mental Resilience, Fuelling Readiness. Score each honestly based on their data. delta: the gap to where they need to be for their goal (negative = deficit, 0 = adequate). status: one of "strong", "adequate", "limiting", "critical".
+- phases: 3–5 training phases that map the path from now to the athlete's goal. Each phase has a label (e.g. Base, Build, Specific, Taper, Foundation, Race-Specific), a duration in weeks (e.g. "6 weeks"), and a focus — one short sentence on what this phase develops. Sequence should be logical and sum to roughly the athlete's timeline. If timeline is unknown, use a sensible default (16–20 weeks for most goals).
 - flags: 2–3 short, specific callouts. tag is a 1-word label (e.g. TIME, LOAD, INJURY, VOLUME, INTENSITY). message is one direct sentence about the flag.`;
 }
 

@@ -593,6 +593,32 @@ export default function BlueprintScreen({ plan, intake, onContinue }: {
                 ))}
               </div>
 
+              {/* Phase breakdown */}
+              {r.phases && r.phases.length > 0 && (
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${Math.min(r.phases.length, 4)}, 1fr)`,
+                  gap: 8,
+                  marginBottom: 12,
+                }}>
+                  {r.phases.map((ph, i) => (
+                    <div key={i} style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: `1px solid ${BORDER}`,
+                      borderRadius: 10,
+                      padding: "14px 14px 16px",
+                    }}>
+                      <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", color: MUTED, textTransform: "uppercase", margin: "0 0 6px" }}>
+                        Phase {String(i + 1).padStart(2, "0")}
+                      </p>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: WHITE, margin: "0 0 4px" }}>{ph.label}</p>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: ORANGE, margin: "0 0 8px" }}>{ph.duration}</p>
+                      <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.5, margin: 0 }}>{ph.focus}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Flags */}
               {r.flags && r.flags.length > 0 && (
                 <div style={{

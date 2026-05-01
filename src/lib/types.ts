@@ -108,6 +108,11 @@ export interface PlannerOutput {
       delta: number;
       status: "strong" | "adequate" | "limiting" | "critical";
     }[];
+    phases?: {
+      label: string;
+      duration: string;
+      focus: string;
+    }[];
     flags: {
       tag: string;
       message: string;
