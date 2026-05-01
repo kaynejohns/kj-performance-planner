@@ -40,7 +40,7 @@ export async function generateWithModel(prompt, system) {
 
   const isLargeRequest = !system;
   const model = isLargeRequest ? PROGRAM_MODEL() : BLUEPRINT_MODEL();
-  const maxTokens = isLargeRequest ? 32000 : 2500;
+  const maxTokens = isLargeRequest ? 32000 : 4000;
   const params = {
     model,
     max_tokens: maxTokens,
@@ -69,13 +69,9 @@ export async function generatePerformancePlan(input) {
     "You are a senior performance coach. Return ONLY valid JSON matching the schema in the user prompt. No markdown, no commentary, no code fences.";
 
   const raw = await generateWithModel(prompt, system);
-  const cleaned = raw
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
-
-  const parsed = safeJsonParse(cleaned);
+  // Extract the JSON object directly — handles code fences and any leading/trailing text.
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  const parsed = jsonMatch ? safeJsonParse(jsonMatch[0]) : null;
   if (!parsed) {
     console.error("[generatePerformancePlan] JSON parse failed — falling back to mock. Raw:", raw.slice(0, 300));
     return withHardcodedCta(mockPlanFromInput(input), input);
