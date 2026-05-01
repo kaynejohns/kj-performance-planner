@@ -1,12 +1,11 @@
-// CJS wrapper — can dynamic import() ES modules, avoids ESM/CJS bundler issues
+// CJS wrapper — require() traverses node_modules correctly; dynamic import() loads ESM server
+const serverless = require("serverless-http");
+
 let cachedHandler;
 
 exports.handler = async function (event, context) {
   if (!cachedHandler) {
-    const [{ default: serverless }, { app }] = await Promise.all([
-      import("serverless-http"),
-      import("../../server/index.js"),
-    ]);
+    const { app } = await import("../../server/index.js");
     cachedHandler = serverless(app);
   }
   return cachedHandler(event, context);
