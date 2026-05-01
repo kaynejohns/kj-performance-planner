@@ -43,7 +43,7 @@ export async function generateWithModel(prompt, system) {
   // Large calls (full programme, no system prompt) use streaming — required by the SDK
   // when max_tokens is high enough that the request could exceed 10 minutes non-streamed.
   const isLargeRequest = !system;
-  const maxTokens = isLargeRequest ? 32000 : 8000;
+  const maxTokens = isLargeRequest ? 32000 : 4000;
   const params = {
     model: getDefaultModel(),
     max_tokens: maxTokens,
