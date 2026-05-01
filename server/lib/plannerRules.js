@@ -292,6 +292,16 @@ Return ONLY valid JSON in exactly this schema. Arrays may have 2–5 items — u
     "timelineEstimate": "string",
     "summary": "string",
     "primaryPriorities": ["string"]
+  },
+  "readout": {
+    "feasibilityScore": 0,
+    "feasibilityLabel": "string",
+    "capacityMetrics": [
+      { "label": "string", "score": 0, "delta": 0, "status": "string" }
+    ],
+    "flags": [
+      { "tag": "string", "message": "string" }
+    ]
   }
 }
 
@@ -301,7 +311,13 @@ For gapSummary:
 - classification: one of "Achievable in one block", "Moderate challenge — 2–3 blocks", "Significant challenge — 4–6 blocks", "Long-term transformation — 6+ blocks"
 - timelineEstimate: honest plain-language estimate (e.g. "12–20 weeks with consistent training")
 - summary: 1–2 sentences on what closing this gap actually requires
-- primaryPriorities: 2–3 the most important things to close the gap`;
+- primaryPriorities: 2–3 the most important things to close the gap
+
+For readout:
+- feasibilityScore: integer 0–100. How feasible the athlete's goal is given their current capacity. 90+ = aligned, 75–89 = achievable, 60–74 = ambitious, 40–59 = significant challenge, <40 = unrealistic without major changes. Be honest — do not inflate.
+- feasibilityLabel: one of "aligned", "achievable", "ambitious", "significant challenge", "unrealistic"
+- capacityMetrics: exactly 4 metrics scored 0–100 relevant to this athlete's sport and goal. Choose the 4 most relevant from: Aerobic Base, Load Tolerance, Consistency, Strength Base, Speed Reserve, Race-Specific Fitness, Threshold Fitness, Recovery Quality, Mental Resilience, Fuelling Readiness. Score each honestly based on their data. delta: the gap to where they need to be for their goal (negative = deficit, 0 = adequate). status: one of "strong", "adequate", "limiting", "critical".
+- flags: 2–3 short, specific callouts. tag is a 1-word label (e.g. TIME, LOAD, INJURY, VOLUME, INTENSITY). message is one direct sentence about the flag.`;
 }
 
 /** Hardcoded conversion CTA (applied after model parse; overrides `cta` in the JSON). */

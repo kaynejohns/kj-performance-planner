@@ -99,6 +99,20 @@ export interface PlannerOutput {
     summary: string;
     primaryPriorities: string[];
   };
+  readout?: {
+    feasibilityScore: number;
+    feasibilityLabel: string;
+    capacityMetrics: {
+      label: string;
+      score: number;
+      delta: number;
+      status: "strong" | "adequate" | "limiting" | "critical";
+    }[];
+    flags: {
+      tag: string;
+      message: string;
+    }[];
+  };
 }
 
 export interface DetailedPlanWeekSession {

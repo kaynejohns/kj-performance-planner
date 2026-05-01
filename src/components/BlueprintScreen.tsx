@@ -524,6 +524,97 @@ export default function BlueprintScreen({ plan, intake, onContinue }: {
 
         <Divider />
 
+        {/* ── BLUEPRINT READOUT ── */}
+        {plan.readout && (() => {
+          const r = plan.readout;
+          const feasColor = r.feasibilityScore >= 90 ? "#4ade80"
+            : r.feasibilityScore >= 75 ? ORANGE
+            : r.feasibilityScore >= 60 ? "#facc15"
+            : "#ef4444";
+          const barColor = (status: string) =>
+            status === "strong" ? "#4ade80"
+            : status === "adequate" ? "#4ade80"
+            : status === "limiting" ? "#facc15"
+            : "#ef4444";
+          return (
+            <div style={{ marginBottom: 28 }}>
+              {/* Header row */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", color: MUTED, textTransform: "uppercase", margin: "0 0 8px" }}>
+                    Blueprint / Readout
+                  </p>
+                  <h2 style={{ fontSize: "clamp(18px, 4vw, 26px)", fontWeight: 700, color: WHITE, lineHeight: 1.2, margin: 0 }}>
+                    Goal is{" "}
+                    <span style={{ color: feasColor }}>{r.feasibilityLabel}</span>
+                    {" "}with current capacity.
+                  </h2>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 20 }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: MUTED, textTransform: "uppercase", margin: "0 0 2px" }}>
+                    Feasibility
+                  </p>
+                  <p style={{ fontSize: 42, fontWeight: 800, color: feasColor, margin: 0, lineHeight: 1 }}>
+                    {r.feasibilityScore}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Capacity metric bars */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+                {r.capacityMetrics.map((m, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: MUTED, textTransform: "uppercase", width: 130, flexShrink: 0, margin: 0 }}>
+                      {m.label}
+                    </p>
+                    <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.07)", borderRadius: 3, position: "relative" }}>
+                      <div style={{
+                        width: `${Math.min(m.score, 100)}%`,
+                        height: "100%",
+                        background: barColor(m.status),
+                        borderRadius: 3,
+                        transition: "width 0.6s ease",
+                      }} />
+                      {/* Target marker at 80 */}
+                      <div style={{
+                        position: "absolute", top: -3, left: "80%",
+                        width: 1, height: 12, background: "rgba(255,255,255,0.2)",
+                      }} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, width: 60, justifyContent: "flex-end", flexShrink: 0 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: WHITE, margin: 0 }}>{m.score}</p>
+                      {m.delta < 0 ? (
+                        <p style={{ fontSize: 11, fontWeight: 600, color: "#ef4444", margin: 0 }}>{m.delta}</p>
+                      ) : (
+                        <p style={{ fontSize: 11, fontWeight: 700, color: "#4ade80", margin: 0 }}>✓</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Flags */}
+              {r.flags && r.flags.length > 0 && (
+                <div style={{
+                  background: "rgba(255,138,26,0.05)", border: "1px solid rgba(255,138,26,0.15)",
+                  borderRadius: 10, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8,
+                }}>
+                  {r.flags.map((f, i) => (
+                    <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                      <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: ORANGE, textTransform: "uppercase", margin: 0, flexShrink: 0, paddingTop: 1, width: 60 }}>
+                        {f.tag}
+                      </p>
+                      <p style={{ fontSize: 13, color: BODY, lineHeight: 1.6, margin: 0 }}>{f.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        <Divider />
+
         {/* ── YOUR ANALYSIS ── */}
         <SectionLabel>Your Analysis</SectionLabel>
 
