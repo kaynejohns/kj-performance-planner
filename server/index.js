@@ -33,8 +33,9 @@ import { intakeSchema, leadSchema } from "./lib/validation.js";
 import { buildProgramPrompt } from "./lib/programGenerationService.js";
 import { applyPrescriptions } from "./lib/sessionTemplates.js";
 import { mockExpandWeeks } from "./lib/generateProgramService.js";
-import { buildProgramPdf } from "./lib/pdfService.js";
-import { sendProgramEmail } from "./lib/emailService.js";
+// pdfkit and email are loaded dynamically to avoid crashing the serverless function on startup
+const getPdfService = () => import("./lib/pdfService.js");
+const getEmailService = () => import("./lib/emailService.js");
 
 const app = express();
 app.use(cors());
@@ -216,6 +217,8 @@ app.post("/api/performance-planner/generate-program", async (req, res) => {
         console.log(`[generate-program] background generation started for ${email}`);
         const weeksArray = await runGeneration();
         console.log(`[generate-program] parsed ${weeksArray.length} weeks — building PDF`);
+        const { buildProgramPdf } = await getPdfService();
+        const { sendProgramEmail } = await getEmailService();
         const pdfBuffer = await buildProgramPdf({
           firstName: firstName || "Athlete",
           intake: intakeResult.data,
